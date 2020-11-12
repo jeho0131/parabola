@@ -5,21 +5,26 @@ import math
 import time
 
 pygame.init()
-WINDOWSURFACE = pygame.display.set_mode((1000, 500))
+WINDOWSURFACE = pygame.display.set_mode((1300, 650))
 FPSCLOCK = pygame.time.Clock()
 
 boom = pygame.image.load("boom.png")
 smallboom = pygame.transform.scale(boom,(30,30))
 
 def main():
-    dir = 45
+    direction = 45
     speed = 30
     vox = 0
     voy = 0
     xdis = 0
     ydis = 0
+    linex = 0
+    liney = 0
+    boomx = 0
+    boomy = 620
+    timesave = 0
     timer = 0
-    
+
     while True:
         for event in pygame.event.get():
             if event.type == QUIT:
@@ -28,29 +33,46 @@ def main():
 
             elif event.type == KEYDOWN:
                 if event.key == K_UP:
-                    if dir < 90:
-                        dir += 5
+                    if direction < 90:
+                        direction += 5
+                        print("각도:",direction,"\t힘:", speed)
                 elif event.key == K_DOWN:
-                    if 0 < dir:
-                        dir -= 5
+                    if 0 < direction:
+                        direction -= 5
+                        print("각도:",direction,"\t힘:", speed)
                 elif event.key == K_RIGHT:
-                    if speed < 70:
-                        speed += 1
+                    if speed < 110:
+                        speed += 2
+                        print("각도:",direction,"\t힘:", speed)
                 elif event.key == K_LEFT:
-                    if 20 < speed:
-                        speed -= 1
+                    if 30 < speed:
+                        speed -= 2
+                        print("각도:",direction,"\t힘:", speed)
 
-            vox = math.cos(math.pi*dir/180)*speed
-            voy = math.sin(math.pi*dir/180)*speed
+            vox = math.cos(math.pi*direction/180)*speed
+            voy = math.sin(math.pi*direction/180)*speed
 
             if event.type == MOUSEBUTTONDOWN:
-                xdis = vox * timer
-                ydis = (voy * timer) + (timer * timer * -5)
-
-        print(time.time())
+                timesave = time.time()
+                while True:
+                    linex = xdis + boomx
+                    liney = ydis * -1 + 640
+                    xdis = vox * timer
+                    ydis = (voy * timer) + (timer * timer * -4.9)
+                    WINDOWSURFACE.fill((255,255,255))
+                    WINDOWSURFACE.blit(smallboom,(xdis + boomx,ydis * -1 + boomy))
+                    timer = time.time() - timesave
+                    #pygame.draw.line(WINDOWSURFACE, (255,0,0), (linex, liney), (xdis, ydis * -1 + 640))
+                    #print(xdis + 20, "\t", (ydis + 450))
+                    pygame.display.update()
+                    FPSCLOCK.tick(30)
+                    if ydis < 0:
+                        boomx = xdis + boomx
+                        boomy = ydis * -1 + boomy
+                        break
 
         WINDOWSURFACE.fill((255,255,255))
-        WINDOWSURFACE.blit(smallboom,(50,450))
+        WINDOWSURFACE.blit(smallboom,(boomx,boomy))
         pygame.display.update()
         FPSCLOCK.tick(30)
 
